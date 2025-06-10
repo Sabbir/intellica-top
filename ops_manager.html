@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operations Manager Dashboard</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --gray: #95a5a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--dark);
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--dark);
+        }
+
+        /* Team Performance */
+        .team-performance {
+            grid-column: span 8;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .performance-card {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .metric-change {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Team Members */
+        .team-members {
+            grid-column: span 4;
+        }
+
+        .member-list {
+            list-style: none;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .member-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 500;
+        }
+
+        .member-role {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .member-stats {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .member-stat {
+            text-align: center;
+        }
+
+        .stat-count {
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            color: var(--gray);
+            text-transform: uppercase;
+        }
+
+        /* Tickets Overview */
+        .tickets-overview {
+            grid-column: span 12;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .badge-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .sla-timer {
+            font-weight: 600;
+        }
+
+        .sla-critical {
+            color: var(--danger);
+        }
+
+        .sla-warning {
+            color: var(--warning);
+        }
+
+        .sla-normal {
+            color: var(--success);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            z-index: 1;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+        }
+
+        .assistant-header {
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assistant-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assistant-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .assistant-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .assistant-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .assistant-bot {
+            background-color: white;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+        }
+
+        .assistant-user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .assistant-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .assistant-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .assistant-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 1rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .assistant-launcher {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        /* Assign Ticket Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .team-performance {
+                grid-column: span 8;
+            }
+            
+            .team-members {
+                grid-column: span 4;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .team-performance, .team-members {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .ai-assistant {
+                width: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-cogs"></i>
+                <span>OpsCenter</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Team</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Operations Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar">OM</div>
+                    <span>Alex Morgan (Operations Manager)</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Team Performance -->
+                <div class="card team-performance">
+                    <div class="card-header">
+                        <div class="card-title">Team Performance</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Today</button>
+                            <button class="btn btn-primary">This Week</button>
+                            <button class="btn btn-outline">This Month</button>
+                        </div>
+                    </div>
+                    <div class="performance-grid">
+                        <div class="performance-card">
+                            <div class="metric">
+                                <div class="metric-label">L1 Team SLA Compliance</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i> 2.5%
+                                </div>
+                            </div>
+                            <div class="metric-value">94.7%</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="metric">
+                                <div class="metric-label">L2 Team SLA Compliance</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i> 1.8%
+                                </div>
+                            </div>
+                            <div class="metric-value">97.2%</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="metric">
+                                <div class="metric-label">First Contact Resolution</div>
+                                <div class="metric-change negative">
+                                    <i class="fas fa-arrow-down"></i> 1.2%
+                                </div>
+                            </div>
+                            <div class="metric-value">78.5%</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="metric">
+                                <div class="metric-label">Customer Satisfaction</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i> 0.7%
+                                </div>
+                            </div>
+                            <div class="metric-value">4.6/5</div>
+                        </div>
+                    </div>
+                    <div style="height: 200px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray); margin-top: 1rem;">
+                        [Performance Trends Chart]
+                    </div>
+                </div>
+
+                <!-- Team Members -->
+                <div class="card team-members">
+                    <div class="card-header">
+                        <div class="card-title">Team Members</div>
+                        <div class="card-actions">
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="member-list">
+                        <li class="member-item">
+                            <div class="member-avatar">JD</div>
+                            <div class="member-info">
+                                <div class="member-name">John Doe</div>
+                                <div class="member-role">L1 Support</div>
+                            </div>
+                            <div class="member-stats">
+                                <div class="member-stat">
+                                    <div class="stat-count">12</div>
+                                    <div class="stat-label">Open</div>
+                                </div>
+                                <div class="member-stat">
+                                    <div class="stat-count">92%</div>
+                                    <div class="stat-label">SLA</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="member-item">
+                            <div class="member-avatar">SM</div>
+                            <div class="member-info">
+                                <div class="member-name">Sarah Miller</div>
+                                <div class="member-role">L1 Support</div>
+                            </div>
+                            <div class="member-stats">
+                                <div class="member-stat">
+                                    <div class="stat-count">8</div>
+                                    <div class="stat-label">Open</div>
+                                </div>
+                                <div class="member-stat">
+                                    <div class="stat-count">95%</div>
+                                    <div class="stat-label">SLA</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="member-item">
+                            <div class="member-avatar">RJ</div>
+                            <div class="member-info">
+                                <div class="member-name">Robert Johnson</div>
+                                <div class="member-role">L2 Support</div>
+                            </div>
+                            <div class="member-stats">
+                                <div class="member-stat">
+                                    <div class="stat-count">5</div>
+                                    <div class="stat-label">Open</div>
+                                </div>
+                                <div class="member-stat">
+                                    <div class="stat-count">98%</div>
+                                    <div class="stat-label">SLA</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="member-item">
+                            <div class="member-avatar">EK</div>
+                            <div class="member-info">
+                                <div class="member-name">Emily Kim</div>
+                                <div class="member-role">L2 Support</div>
+                            </div>
+                            <div class="member-stats">
+                                <div class="member-stat">
+                                    <div class="stat-count">3</div>
+                                    <div class="stat-label">Open</div>
+                                </div>
+                                <div class="member-stat">
+                                    <div class="stat-count">96%</div>
+                                    <div class="stat-label">SLA</div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tickets Overview -->
+                <div class="card tickets-overview">
+                    <div class="card-header">
+                        <div class="card-title">Active Tickets</div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Filters
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active">All Tickets</div>
+                        <div class="tab">Unassigned</div>
+                        <div class="tab">At Risk</div>
+                        <div class="tab">Breached</div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Assigned To</th>
+                                <th>SLA Timer</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#INC-10245</td>
+                                <td>Database access denied after update</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td>John Doe (L1)</td>
+                                <td class="sla-timer sla-warning">1h 23m</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="dropdown-toggle">Actions <i class="fas fa-chevron-down"></i></button>
+                                        <div class="dropdown-menu">
+                                            <div class="dropdown-item" data-action="assign">
+                                                <i class="fas fa-user-plus"></i> Reassign
+                                            </div>
+                                            <div class="dropdown-item" data-action="ai">
+                                                <i class="fas fa-robot"></i> AI Insights
+                                            </div>
+                                            <div class="dropdown-item" data-action="escalate">
+                                                <i class="fas fa-level-up-alt"></i> Escalate
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10238</td>
+                                <td>Critical: Payment processing failed</td>
+                                <td><span class="badge badge-danger">High</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td>Robert Johnson (L2)</td>
+                                <td class="sla-timer sla-critical">45m</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="dropdown-toggle">Actions <i class="fas fa-chevron-down"></i></button>
+                                        <div class="dropdown-menu">
+                                            <div class="dropdown-item" data-action="assign">
+                                                <i class="fas fa-user-plus"></i> Reassign
+                                            </div>
+                                            <div class="dropdown-item" data-action="ai">
+                                                <i class="fas fa-robot"></i> AI Insights
+                                            </div>
+                                            <div class="dropdown-item" data-action="escalate">
+                                                <i class="fas fa-level-up-alt"></i> Escalate
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10212</td>
+                                <td>Login authentication delay</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-secondary">Unassigned</span></td>
+                                <td>-</td>
+                                <td class="sla-timer sla-warning">2h 12m</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="dropdown-toggle">Actions <i class="fas fa-chevron-down"></i></button>
+                                        <div class="dropdown-menu">
+                                            <div class="dropdown-item" data-action="assign">
+                                                <i class="fas fa-user-plus"></i> Assign
+                                            </div>
+                                            <div class="dropdown-item" data-action="ai">
+                                                <i class="fas fa-robot"></i> AI Insights
+                                            </div>
+                                            <div class="dropdown-item" data-action="escalate">
+                                                <i class="fas fa-level-up-alt"></i> Escalate
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10189</td>
+                                <td>Dashboard loading slowly</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td>Sarah Miller (L1)</td>
+                                <td class="sla-timer sla-normal">3h 42m</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="dropdown-toggle">Actions <i class="fas fa-chevron-down"></i></button>
+                                        <div class="dropdown-menu">
+                                            <div class="dropdown-item" data-action="assign">
+                                                <i class="fas fa-user-plus"></i> Reassign
+                                            </div>
+                                            <div class="dropdown-item" data-action="ai">
+                                                <i class="fas fa-robot"></i> AI Insights
+                                            </div>
+                                            <div class="dropdown-item" data-action="escalate">
+                                                <i class="fas fa-level-up-alt"></i> Escalate
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Ticket Modal -->
+    <div class="modal" id="assignModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Assign Ticket</div>
+                <button class="modal-close" id="closeAssignModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Ticket #INC-10212</label>
+                    <p>Login authentication delay</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assign To</label>
+                    <select class="form-select" id="assignTo">
+                        <option value="">Select team member</option>
+                        <option value="JD">John Doe (L1 Support)</option>
+                        <option value="SM">Sarah Miller (L1 Support)</option>
+                        <option value="RJ">Robert Johnson (L2 Support)</option>
+                        <option value="EK">Emily Kim (L2 Support)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select" id="ticketPriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelAssign">Cancel</button>
+                <button class="btn btn-primary" id="confirmAssign">Assign Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant -->
+    <div class="assistant-launcher" id="assistantLauncher">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div class="ai-assistant" id="aiAssistant">
+        <div class="assistant-header">
+            <div class="assistant-title">
+                <i class="fas fa-robot"></i> Agentic AI Assistant
+            </div>
+            <button class="assistant-close" id="closeAssistant">&times;</button>
+        </div>
+        <div class="assistant-messages" id="assistantMessages">
+            <div class="assistant-message assistant-bot">
+                Hello! I'm your Agentic AI Assistant. I can help you analyze tickets, suggest assignments, and provide resolution insights.
+            </div>
+            <div class="assistant-message assistant-bot">
+                You're currently viewing ticket #INC-10245 - "Database access denied after update". How can I assist with this ticket?
+            </div>
+        </div>
+        <div class="assistant-input">
+            <input type="text" id="assistantInput" placeholder="Ask about this ticket...">
+            <button class="assistant-btn" id="sendAssistantMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const assignModal = document.getElementById('assignModal');
+        const closeAssignModal = document.getElementById('closeAssignModal');
+        const cancelAssign = document.getElementById('cancelAssign');
+        const confirmAssign = document.getElementById('confirmAssign');
+        const assistantLauncher = document.getElementById('assistantLauncher');
+        const aiAssistant = document.getElementById('aiAssistant');
+        const closeAssistant = document.getElementById('closeAssistant');
+        const assistantMessages = document.getElementById('assistantMessages');
+        const assistantInput = document.getElementById('assistantInput');
+        const sendAssistantMessage = document.getElementById('sendAssistantMessage');
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        // Toggle dropdown menus
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const dropdownMenu = this.nextElementSibling;
+                dropdownMenu.classList.toggle('show');
+                
+                // Close other open dropdowns
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    if (menu !== dropdownMenu) {
+                        menu.classList.remove('show');
+                    }
+                });
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.matches('.dropdown-toggle')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Dropdown item actions
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const ticketRow = this.closest('tr');
+                const ticketId = ticketRow.querySelector('td:first-child').textContent;
+                
+                if (action === 'assign') {
+                    // Show assign modal
+                    assignModal.classList.add('show');
+                    
+                    // Update modal with ticket info
+                    const modalTitle = assignModal.querySelector('.modal-title');
+                    const ticketSubject = ticketRow.querySelector('td:nth-child(2)').textContent;
+                    modalTitle.textContent = `Assign ${ticketId}`;
+                    assignModal.querySelector('p').textContent = ticketSubject;
+                    
+                    // Set current assignee if exists
+                    const assignedTo = ticketRow.querySelector('td:nth-child(5)').textContent;
+                    if (assignedTo !== '-') {
+                        // In a real app, we'd match the assignee to the dropdown options
+                    }
+                } else if (action === 'ai') {
+                    // Open AI assistant for this ticket
+                    aiAssistant.style.display = 'flex';
+                    
+                    // Add ticket context to assistant
+                    const ticketSubject = ticketRow.querySelector('td:nth-child(2)').textContent;
+                    addAssistantMessage('bot', `Let's analyze ${ticketId}: "${ticketSubject}"`);
+                    
+                    // Simulate AI analysis
+                    setTimeout(() => {
+                        addAssistantMessage('bot', `Based on similar past tickets, this is likely a permission caching issue (92% match).`);
+                    }, 800);
+                    
+                    setTimeout(() => {
+                        addAssistantMessage('bot', `The MELT data shows multiple permission validation failures around the time of the last system update.`);
+                    }, 1600);
+                } else if (action === 'escalate') {
+                    if (confirm(`Are you sure you want to escalate ${ticketId} to L3 engineering?`)) {
+                        alert(`${ticketId} has been escalated with all current context.`);
+                    }
+                }
+            });
+        });
+
+        // Assign Ticket Modal
+        closeAssignModal.addEventListener('click', function() {
+            assignModal.classList.remove('show');
+        });
+
+        cancelAssign.addEventListener('click', function() {
+            assignModal.classList.remove('show');
+        });
+
+        confirmAssign.addEventListener('click', function() {
+            const assignTo = document.getElementById('assignTo').value;
+            const priority = document.getElementById('ticketPriority').value;
+            
+            if (assignTo) {
+                // In a real app, we'd make an API call to assign the ticket
+                alert(`Ticket has been assigned with ${priority} priority.`);
+                assignModal.classList.remove('show');
+            } else {
+                alert('Please select a team member to assign to.');
+            }
+        });
+
+        // AI Assistant
+        assistantLauncher.addEventListener('click', function() {
+            aiAssistant.style.display = 'flex';
+        });
+
+        closeAssistant.addEventListener('click', function() {
+            aiAssistant.style.display = 'none';
+        });
+
+        function addAssistantMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('assistant-message', sender === 'bot' ? 'assistant-bot' : 'assistant-user');
+            messageDiv.textContent = message;
+            assistantMessages.appendChild(messageDiv);
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }
+
+        sendAssistantMessage.addEventListener('click', function() {
+            const message = assistantInput.value.trim();
+            if (message) {
+                addAssistantMessage('user', message);
+                assistantInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const responses = [
+                        "I've analyzed the logs and found that the permission cache wasn't updated after the system update.",
+                        "The metrics show this issue affects about 15% of users with similar role assignments.",
+                        "Based on event logs, the last successful permission sync was 12 hours before the reported issue.",
+                        "The traces indicate increased latency in permission validation requests since the update."
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addAssistantMessage('bot', randomResponse);
+                }, 1000);
+            }
+        });
+
+        assistantInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendAssistantMessage.click();
+            }
+        });
+    </script>
+</body>
+</html>

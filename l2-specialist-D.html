@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L2 Engineer Dashboard</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --gray: #95a5a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--dark);
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--dark);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Assigned Tickets */
+        .assigned-tickets {
+            grid-column: span 6;
+        }
+
+        .ticket-list {
+            list-style: none;
+        }
+
+        .ticket-item {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ticket-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .ticket-item.active {
+            border-left: 4px solid var(--primary);
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-id {
+            font-weight: 600;
+        }
+
+        .ticket-priority {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .ticket-subject {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Ticket Details */
+        .ticket-details {
+            grid-column: span 6;
+            display: none;
+        }
+
+        .ticket-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ticket-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .sla-timer {
+            font-weight: 600;
+        }
+
+        .sla-critical {
+            color: var(--danger);
+        }
+
+        .sla-warning {
+            color: var(--warning);
+        }
+
+        .sla-normal {
+            color: var(--success);
+        }
+
+        .ticket-description {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .ticket-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .resolution-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+        }
+
+        .assistant-header {
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assistant-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assistant-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .assistant-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .assistant-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .assistant-bot {
+            background-color: white;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+        }
+
+        .assistant-user {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .assistant-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .assistant-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .assistant-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 1rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .assistant-launcher {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        /* RCA Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Change Request Modal */
+        .cr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cr-modal.show {
+            display: flex;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .assigned-tickets, .ticket-details {
+                grid-column: span 4;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .assigned-tickets, .ticket-details {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ticket-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .ai-assistant {
+                width: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-user-shield"></i>
+                <span>L2 Engineer</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>L2 Engineer Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar">L2</div>
+                    <span>Sarah Johnson (L2 Support Engineer)</span>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Assigned Tickets -->
+                <div class="card assigned-tickets">
+                    <div class="card-header">
+                        <div class="card-title">Your Assigned Tickets</div>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-outline">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="ticket-list">
+                        <li class="ticket-item active" data-ticket="10245">
+                            <div class="ticket-header">
+                                <span class="ticket-id">#INC-10245</span>
+                                <span class="ticket-priority priority-high">High</span>
+                            </div>
+                            <div class="ticket-subject">Database connection failures after system update</div>
+                            <div class="ticket-meta">
+                                <span>Assigned: 2 hours ago</span>
+                                <span class="sla-timer sla-warning">1h 23m remaining</span>
+                            </div>
+                        </li>
+                        <li class="ticket-item" data-ticket="10238">
+                            <div class="ticket-header">
+                                <span class="ticket-id">#INC-10238</span>
+                                <span class="ticket-priority priority-medium">Medium</span>
+                            </div>
+                            <div class="ticket-subject">API timeout errors during peak hours</div>
+                            <div class="ticket-meta">
+                                <span>Assigned: 1 day ago</span>
+                                <span class="sla-timer sla-normal">2h 42m remaining</span>
+                            </div>
+                        </li>
+                        <li class="ticket-item" data-ticket="10192">
+                            <div class="ticket-header">
+                                <span class="ticket-id">#INC-10192</span>
+                                <span class="ticket-priority priority-medium">Medium</span>
+                            </div>
+                            <div class="ticket-subject">User role permissions not applying correctly</div>
+                            <div class="ticket-meta">
+                                <span>Assigned: 3 days ago</span>
+                                <span class="sla-timer sla-normal">Completed</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Ticket Details -->
+                <div class="card ticket-details" id="ticketDetails">
+                    <div class="ticket-view">
+                        <div class="card-header">
+                            <div class="ticket-title">Database connection failures after system update</div>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-primary" id="openAssistant">
+                                    <i class="fas fa-robot"></i> AI Assistant
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-info">
+                            <div class="info-item">
+                                <div class="info-label">Ticket ID</div>
+                                <div class="info-value">#INC-10245</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Priority</div>
+                                <div class="info-value"><span class="ticket-priority priority-high">High</span></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">In Progress</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">SLA</div>
+                                <div class="info-value"><span class="sla-timer sla-warning">1h 23m remaining</span></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Reporter</div>
+                                <div class="info-value">John Smith (Customer Support)</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Environment</div>
+                                <div class="info-value">Production</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ticket-description">
+                            <strong>Description:</strong> After the recent system update (v2.3.5), multiple users are reporting database connection failures when trying to access customer records. The error occurs intermittently but is increasing in frequency. Error message: "Database connection timeout - could not establish connection to primary node".
+                        </div>
+                        
+                        <div class="ticket-tabs">
+                            <div class="tab active">Resolution</div>
+                            <div class="tab">History</div>
+                            <div class="tab">Attachments</div>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <div class="resolution-form">
+                                <div class="form-group">
+                                    <label class="form-label">Investigation Notes</label>
+                                    <textarea class="form-control form-textarea" id="investigationNotes">1. Verified database cluster status - all nodes show as healthy
+2. Checked connection pool metrics - connections maxing out
+3. Reviewed recent changes - connection pool settings were modified in v2.3.5
+4. Confirmed issue is reproducible during load testing</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Resolution Steps</label>
+                                    <textarea class="form-control form-textarea" id="resolutionSteps">1. Increased connection pool size from 50 to 100
+2. Adjusted connection timeout settings
+3. Implemented retry logic for failed connections
+4. Verified fix with load testing - no more timeouts observed</textarea>
+                                </div>
+                                
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary" id="resolveTicket">
+                                        <i class="fas fa-check-circle"></i> Resolve Ticket
+                                    </button>
+                                    <button class="btn btn-secondary" id="initiateRCA">
+                                        <i class="fas fa-search"></i> Start RCA
+                                    </button>
+                                    <button class="btn btn-accent" id="createChangeRequest">
+                                        <i class="fas fa-code-branch"></i> Create Change Request
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RCA Modal -->
+    <div class="modal" id="rcaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Root Cause Analysis</div>
+                <button class="modal-close" id="closeRcaModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Root Cause</label>
+                    <textarea class="form-control form-textarea" id="rootCause">The database connection failures were caused by insufficient connection pool sizing in the v2.3.5 update. During peak load, the fixed pool size of 50 connections was exhausted, leading to timeouts. This was exacerbated by the removal of the previous dynamic connection scaling feature.</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Impact Analysis</label>
+                    <textarea class="form-control form-textarea" id="impactAnalysis">This issue affected approximately 15% of users during peak hours, primarily those accessing customer records. The impact was moderate as it prevented access to critical customer data but did not completely block application functionality.</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Preventive Measures</label>
+                    <textarea class="form-control form-textarea" id="preventiveMeasures">1. Implement connection pool monitoring with alerts
+2. Restore dynamic connection scaling with safe upper limits
+3. Add load testing for connection scenarios in CI/CD pipeline
+4. Review all connection-related changes with DB team before deployment</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelRCA">Cancel</button>
+                <button class="btn btn-primary" id="submitRCA">Submit RCA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Request Modal -->
+    <div class="modal cr-modal" id="crModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Create Change Request</div>
+                <button class="modal-close" id="closeCrModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Related Ticket</label>
+                    <input type="text" class="form-control" value="#INC-10245" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Change Title</label>
+                    <input type="text" class="form-control" id="crTitle" value="Update database connection pooling implementation">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Change Description</label>
+                    <textarea class="form-control form-textarea" id="crDescription">Modify the database connection pooling implementation to:
+1. Restore dynamic connection scaling
+2. Implement proper monitoring
+3. Add configuration safeguards
+4. Update documentation</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Priority</label>
+                    <select class="form-control" id="crPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high" selected>High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Target Release</label>
+                    <select class="form-control" id="crRelease">
+                        <option value="hotfix">Hotfix (ASAP)</option>
+                        <option value="next">Next Scheduled Release</option>
+                        <option value="future">Future Release</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelCR">Cancel</button>
+                <button class="btn btn-primary" id="submitCR">Submit Change Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant -->
+    <div class="assistant-launcher" id="assistantLauncher">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <div class="ai-assistant" id="aiAssistant">
+        <div class="assistant-header">
+            <div class="assistant-title">
+                <i class="fas fa-robot"></i> Agentic AI Assistant
+            </div>
+            <button class="assistant-close" id="closeAssistant">&times;</button>
+        </div>
+        <div class="assistant-messages" id="assistantMessages">
+            <div class="assistant-message assistant-bot">
+                Hello Sarah! I'm your Agentic AI Assistant. I can help you analyze ticket #INC-10245 and gather diagnostic information.
+            </div>
+            <div class="assistant-message assistant-bot">
+                I've already pulled some initial data about this database connection issue:
+                <br><br>
+                - 87 similar incidents in past 90 days<br>
+                - Cluster health: Normal (all nodes operational)<br>
+                - Connection pool utilization: 98% at peak<br>
+                - Error pattern matches known configuration issue
+            </div>
+            <div class="assistant-message assistant-bot">
+                What would you like to investigate first? Here are some suggestions:
+                <br><br>
+                1. Detailed connection metrics<br>
+                2. Recent configuration changes<br>
+                3. Error log analysis<br>
+                4. Cluster performance data
+            </div>
+        </div>
+        <div class="assistant-input">
+            <input type="text" id="assistantInput" placeholder="Ask about logs, metrics, or solutions...">
+            <button class="assistant-btn" id="sendAssistantMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const ticketItems = document.querySelectorAll('.ticket-item');
+        const ticketDetails = document.getElementById('ticketDetails');
+        const openAssistant = document.getElementById('openAssistant');
+        const resolveTicket = document.getElementById('resolveTicket');
+        const initiateRCA = document.getElementById('initiateRCA');
+        const createChangeRequest = document.getElementById('createChangeRequest');
+        const rcaModal = document.getElementById('rcaModal');
+        const closeRcaModal = document.getElementById('closeRcaModal');
+        const cancelRCA = document.getElementById('cancelRCA');
+        const submitRCA = document.getElementById('submitRCA');
+        const crModal = document.getElementById('crModal');
+        const closeCrModal = document.getElementById('closeCrModal');
+        const cancelCR = document.getElementById('cancelCR');
+        const submitCR = document.getElementById('submitCR');
+        const assistantLauncher = document.getElementById('assistantLauncher');
+        const aiAssistant = document.getElementById('aiAssistant');
+        const closeAssistant = document.getElementById('closeAssistant');
+        const assistantMessages = document.getElementById('assistantMessages');
+        const assistantInput = document.getElementById('assistantInput');
+        const sendAssistantMessage = document.getElementById('sendAssistantMessage');
+
+        // Show ticket details when clicking on a ticket
+        ticketItems.forEach(item => {
+            item.addEventListener('click', function() {
+                ticketItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                ticketDetails.style.display = 'block';
+                
+                // Update AI assistant context
+                const ticketId = this.getAttribute('data-ticket');
+                const ticketSubject = this.querySelector('.ticket-subject').textContent;
+                
+                // Clear existing messages except the first one
+                assistantMessages.innerHTML = `
+                    <div class="assistant-message assistant-bot">
+                        Hello Sarah! I'm your Agentic AI Assistant. I can help you analyze tickets and gather diagnostic information.
+                    </div>
+                `;
+                
+                // Add ticket-specific context
+                addAssistantMessage('bot', `Now analyzing ticket ${ticketId}: "${ticketSubject}"`);
+                
+                // Simulate loading data
+                setTimeout(() => {
+                    if (ticketId === '10245') {
+                        addAssistantMessage('bot', `I've found 23 similar database connection issues in the past month. The most common root cause was connection pool misconfiguration (68% of cases).`);
+                    } else if (ticketId === '10238') {
+                        addAssistantMessage('bot', `This API timeout issue has occurred 12 times in the past week, usually during peak traffic hours between 10AM-2PM.`);
+                    }
+                }, 800);
+            });
+        });
+
+        // Show the first ticket by default
+        if (ticketItems.length > 0) {
+            ticketItems[0].click();
+        }
+
+        // Ticket resolution
+        resolveTicket.addEventListener('click', function() {
+            const resolutionSteps = document.getElementById('resolutionSteps').value;
+            if (resolutionSteps.trim() === '') {
+                alert('Please document your resolution steps before resolving the ticket.');
+                return;
+            }
+            
+            if (confirm('Are you ready to mark this ticket as resolved?')) {
+                alert('Ticket #INC-10245 has been resolved successfully!');
+                // In a real app, this would update the ticket status via API
+            }
+        });
+
+        // RCA workflow
+        initiateRCA.addEventListener('click', function() {
+            rcaModal.classList.add('show');
+        });
+
+        closeRcaModal.addEventListener('click', function() {
+            rcaModal.classList.remove('show');
+        });
+
+        cancelRCA.addEventListener('click', function() {
+            rcaModal.classList.remove('show');
+        });
+
+        submitRCA.addEventListener('click', function() {
+            const rootCause = document.getElementById('rootCause').value;
+            if (rootCause.trim() === '') {
+                alert('Please provide the root cause analysis.');
+                return;
+            }
+            
+            // In a real app, this would submit the RCA via API
+            alert('Root Cause Analysis submitted successfully!');
+            rcaModal.classList.remove('show');
+        });
+
+        // Change Request workflow
+        createChangeRequest.addEventListener('click', function() {
+            crModal.classList.add('show');
+        });
+
+        closeCrModal.addEventListener('click', function() {
+            crModal.classList.remove('show');
+        });
+
+        cancelCR.addEventListener('click', function() {
+            crModal.classList.remove('show');
+        });
+
+        submitCR.addEventListener('click', function() {
+            const crTitle = document.getElementById('crTitle').value;
+            if (crTitle.trim() === '') {
+                alert('Please provide a title for the change request.');
+                return;
+            }
+            
+            // In a real app, this would submit the CR via API
+            alert('Change Request submitted successfully!');
+            crModal.classList.remove('show');
+        });
+
+        // AI Assistant
+        assistantLauncher.addEventListener('click', function() {
+            aiAssistant.style.display = 'flex';
+        });
+
+        openAssistant.addEventListener('click', function() {
+            aiAssistant.style.display = 'flex';
+        });
+
+        closeAssistant.addEventListener('click', function() {
+            aiAssistant.style.display = 'none';
+        });
+
+        function addAssistantMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('assistant-message', sender === 'bot' ? 'assistant-bot' : 'assistant-user');
+            messageDiv.textContent = message;
+            assistantMessages.appendChild(messageDiv);
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }
+
+        sendAssistantMessage.addEventListener('click', function() {
+            const message = assistantInput.value.trim();
+            if (message) {
+                addAssistantMessage('user', message);
+                assistantInput.value = '';
+                
+                // Simulate bot response based on query
+                setTimeout(() => {
+                    let response = "";
+                    
+                    if (message.toLowerCase().includes('log') || message.toLowerCase().includes('error')) {
+                        response = "Here are the relevant error logs:\n\n" +
+                                   "2023-05-15 09:23:45 ERROR [DB Pool-12] Connection acquisition timed out after 30000ms\n" +
+                                   "2023-05-15 09:24:12 WARN  [DB Pool-15] Connection leak detected - connection was not returned to pool\n" +
+                                   "2023-05-15 09:25:03 ERROR [DB Pool-18] Could not create new connection - max pool size reached";
+                    } 
+                    else if (message.toLowerCase().includes('metric') || message.toLowerCase().includes('stat')) {
+                        response = "Current database connection metrics:\n\n" +
+                                   "- Active connections: 48/50 (96% utilization)\n" +
+                                   "- Connection wait time: 4.2s (p95)\n" +
+                                   "- Connection creation rate: 12/min\n" +
+                                   "- Failed connections: 142 in last hour";
+                    }
+                    else if (message.toLowerCase().includes('config') || message.toLowerCase().includes('change')) {
+                        response = "Configuration changes in v2.3.5:\n\n" +
+                                   "- Connection pool size reduced from 100 to 50\n" +
+                                   "- Dynamic scaling feature removed\n" +
+                                   "- Timeout increased from 10s to 30s\n" +
+                                   "- Validation query modified";
+                    }
+                    else if (message.toLowerCase().includes('solution') || message.toLowerCase().includes('fix')) {
+                        response = "Recommended solutions based on analysis:\n\n" +
+                                   "1. Increase connection pool size (immediate fix)\n" +
+                                   "2. Implement connection recycling (medium-term)\n" +
+                                   "3. Restore dynamic scaling with safeguards (long-term)\n" +
+                                   "4. Add connection pool monitoring";
+                    }
+                    else {
+                        const genericResponses = [
+                            "I've analyzed the database cluster logs and found multiple connection timeout errors during peak load.",
+                            "The metrics show connection pool saturation correlates with the reported issues.",
+                            "Based on the configuration changes, the reduced pool size appears to be the primary factor.",
+                            "Similar past incidents were resolved by adjusting pool sizing and implementing better connection management."
+                        ];
+                        response = genericResponses[Math.floor(Math.random() * genericResponses.length)];
+                    }
+                    
+                    addAssistantMessage('bot', response);
+                }, 1000);
+            }
+        });
+
+        assistantInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendAssistantMessage.click();
+            }
+        });
+    </script>
+</body>
+</html>

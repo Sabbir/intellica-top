@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Manager Dashboard</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --gray: #95a5a6;
+            --tower-app: #9b59b6;
+            --tower-biz: #3498db;
+            --tower-data: #1abc9c;
+            --tower-sec: #e74c3c;
+            --tower-infra: #f39c12;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--dark);
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Date Range Selector */
+        .date-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .date-range-label {
+            font-weight: 500;
+        }
+
+        .date-input {
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--dark);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Ticket Volume */
+        .ticket-volume {
+            grid-column: span 8;
+        }
+
+        .volume-chart {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        /* Resolver Groups */
+        .resolver-groups {
+            grid-column: span 4;
+        }
+
+        .group-list {
+            list-style: none;
+        }
+
+        .group-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .group-name {
+            font-weight: 500;
+        }
+
+        .group-count {
+            font-weight: 600;
+        }
+
+        /* Metrics Overview */
+        .metrics-overview {
+            grid-column: span 12;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-card {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Transition Timeline */
+        .transition-timeline {
+            grid-column: span 6;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 1rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: var(--primary);
+            border: 2px solid white;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-content {
+            background-color: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* Knowledge Metrics */
+        .knowledge-metrics {
+            grid-column: span 6;
+        }
+
+        .knowledge-chart {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+        }
+
+        /* Scorecard */
+        .scorecard {
+            grid-column: span 6;
+        }
+
+        .scorecard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .scorecard-item {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .scorecard-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .scorecard-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .scorecard-rating {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .rating-good {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success);
+        }
+
+        .rating-fair {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning);
+        }
+
+        .rating-poor {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+
+        /* Document Upload */
+        .document-upload {
+            grid-column: span 6;
+        }
+
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text {
+            color: var(--gray);
+        }
+
+        .document-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .document-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .document-name {
+            flex: 1;
+        }
+
+        .document-date {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Tower View */
+        .tower-view {
+            grid-column: span 12;
+        }
+
+        .tower-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        .tower-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tower-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tower-content {
+            display: none;
+        }
+
+        .tower-content.active {
+            display: block;
+        }
+
+        .tower-app {
+            border-left: 4px solid var(--tower-app);
+        }
+
+        .tower-biz {
+            border-left: 4px solid var(--tower-biz);
+        }
+
+        .tower-data {
+            border-left: 4px solid var(--tower-data);
+        }
+
+        .tower-sec {
+            border-left: 4px solid var(--tower-sec);
+        }
+
+        .tower-infra {
+            border-left: 4px solid var(--tower-infra);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .ticket-volume, .transition-timeline, .knowledge-metrics, .scorecard, .document-upload {
+                grid-column: span 8;
+            }
+            
+            .resolver-groups {
+                grid-column: span 4;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .ticket-volume, .resolver-groups, .transition-timeline, .knowledge-metrics, .scorecard, .document-upload {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid, .scorecard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-range-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transition</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Transition Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar">TM</div>
+                    <span>Alex Morgan (Transition Manager)</span>
+                </div>
+            </div>
+
+            <!-- Date Range Selector -->
+            <div class="date-range-selector">
+                <div class="date-range-label">Date Range:</div>
+                <input type="date" class="date-input" id="startDate" value="2022-01-01">
+                <span>to</span>
+                <input type="date" class="date-input" id="endDate" value="2022-12-31">
+                <button class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <button class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </button>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Ticket Volume -->
+                <div class="card ticket-volume">
+                    <div class="card-header">
+                        <div class="card-title">Ticket Volume Trends</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">Incidents</button>
+                            <button class="btn btn-outline">Service</button>
+                            <button class="btn btn-outline">Problems</button>
+                            <button class="btn btn-primary">Changes</button>
+                        </div>
+                    </div>
+                    <div class="volume-chart">
+                        [Inflow/Outflow Ticket Volume Chart]
+                    </div>
+                </div>
+
+                <!-- Resolver Groups -->
+                <div class="card resolver-groups">
+                    <div class="card-header">
+                        <div class="card-title">Tickets by Resolver Group</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    <ul class="group-list">
+                        <li class="group-item">
+                            <span class="group-name">Application Support</span>
+                            <span class="group-count">1,245</span>
+                        </li>
+                        <li class="group-item">
+                            <span class="group-name">Database Admin</span>
+                            <span class="group-count">876</span>
+                        </li>
+                        <li class="group-item">
+                            <span class="group-name">Network Team</span>
+                            <span class="group-count">754</span>
+                        </li>
+                        <li class="group-item">
+                            <span class="group-name">Security Ops</span>
+                            <span class="group-count">532</span>
+                        </li>
+                        <li class="group-item">
+                            <span class="group-name">Business Support</span>
+                            <span class="group-count">421</span>
+                        </li>
+                        <li class="group-item">
+                            <span class="group-name">Infrastructure</span>
+                            <span class="group-count">398</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Metrics Overview -->
+                <div class="card metrics-overview">
+                    <div class="card-header">
+                        <div class="card-title">Transition Metrics</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-info-circle"></i> Definitions
+                            </button>
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Mean Time to Resolve (MTTR)</div>
+                            <div class="metric-value">4.2h</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-down"></i> 12% from last quarter
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Avg. Time on Hold</div>
+                            <div class="metric-value">8.7h</div>
+                            <div class="metric-change negative">
+                                <i class="fas fa-arrow-up"></i> 5% from last quarter
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">First Contact Resolution</div>
+                            <div class="metric-value">68%</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 7% from last quarter
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Ticket Closure Rate</div>
+                            <div class="metric-value">92%</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 3% from last quarter
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transition Timeline -->
+                <div class="card transition-timeline">
+                    <div class="card-header">
+                        <div class="card-title">Transition Timeline & Milestones</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-plus"></i> Add Milestone
+                            </button>
+                        </div>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">Jan 15, 2022</div>
+                            <div class="timeline-content">
+                                Transition kickoff meeting with all stakeholders
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">Mar 1, 2022</div>
+                            <div class="timeline-content">
+                                Knowledge transfer sessions completed for Application Support
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">May 15, 2022</div>
+                            <div class="timeline-content">
+                                Infrastructure handover completed
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">Aug 30, 2022</div>
+                            <div class="timeline-content">
+                                Security controls fully implemented
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-date">Nov 15, 2022</div>
+                            <div class="timeline-content">
+                                Final transition review meeting scheduled
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Knowledge Metrics -->
+                <div class="card knowledge-metrics">
+                    <div class="card-header">
+                        <div class="card-title">Knowledge Acquisition Metrics</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i> Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="knowledge-chart">
+                        [Knowledge Transfer Completion by Tower]
+                    </div>
+                </div>
+
+                <!-- Scorecard -->
+                <div class="card scorecard">
+                    <div class="card-header">
+                        <div class="card-title">Transition Effectiveness Scorecard</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-history"></i> Compare
+                            </button>
+                        </div>
+                    </div>
+                    <div class="scorecard-grid">
+                        <div class="scorecard-item">
+                            <div class="scorecard-label">Knowledge Transfer</div>
+                            <div class="scorecard-value">87%</div>
+                            <div class="scorecard-rating rating-good">Good</div>
+                        </div>
+                        <div class="scorecard-item">
+                            <div class="scorecard-label">Process Adoption</div>
+                            <div class="scorecard-value">76%</div>
+                            <div class="scorecard-rating rating-fair">Fair</div>
+                        </div>
+                        <div class="scorecard-item">
+                            <div class="scorecard-label">Stakeholder Satisfaction</div>
+                            <div class="scorecard-value">4.2/5</div>
+                            <div class="scorecard-rating rating-good">Good</div>
+                        </div>
+                        <div class="scorecard-item">
+                            <div class="scorecard-label">Incident Reduction</div>
+                            <div class="scorecard-value">-15%</div>
+                            <div class="scorecard-rating rating-poor">Needs Improvement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Upload -->
+                <div class="card document-upload">
+                    <div class="card-header">
+                        <div class="card-title">Knowledge Artifacts</div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                        </div>
+                    </div>
+                    <div class="upload-area">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">
+                            Drag & drop files here or click to browse
+                        </div>
+                    </div>
+                    <ul class="document-list">
+                        <li class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                            </div>
+                            <div class="document-name">Transition Plan v2.1.pdf</div>
+                            <div class="document-date">15 MB • Jan 10, 2022</div>
+                        </li>
+                        <li class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-video" style="color: #3498db;"></i>
+                            </div>
+                            <div class="document-name">Database Migration Walkthrough.mp4</div>
+                            <div class="document-date">245 MB • Feb 5, 2022</div>
+                        </li>
+                        <li class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-image" style="color: #2ecc71;"></i>
+                            </div>
+                            <div class="document-name">Network Diagram.png</div>
+                            <div class="document-date">3.2 MB • Mar 12, 2022</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tower View -->
+                <div class="card tower-view">
+                    <div class="card-header">
+                        <div class="card-title">Tower-Specific Metrics</div>
+                        <div class="card-actions">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-sliders-h"></i> Configure
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tower-tabs">
+                        <div class="tower-tab active" data-tower="application">Application</div>
+                        <div class="tower-tab" data-tower="business">Business</div>
+                        <div class="tower-tab" data-tower="data">Data</div>
+                        <div class="tower-tab" data-tower="security">Security</div>
+                        <div class="tower-tab" data-tower="infrastructure">Infrastructure</div>
+                    </div>
+                    <div class="tower-content active tower-app" id="application-tower">
+                        <div style="height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                            [Application Tower Metrics]
+                        </div>
+                    </div>
+                    <div class="tower-content tower-biz" id="business-tower">
+                        <div style="height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                            [Business Tower Metrics]
+                        </div>
+                    </div>
+                    <div class="tower-content tower-data" id="data-tower">
+                        <div style="height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                            [Data Tower Metrics]
+                        </div>
+                    </div>
+                    <div class="tower-content tower-sec" id="security-tower">
+                        <div style="height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                            [Security Tower Metrics]
+                        </div>
+                    </div>
+                    <div class="tower-content tower-infra" id="infrastructure-tower">
+                        <div style="height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                            [Infrastructure Tower Metrics]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tower Tab Switching
+        const towerTabs = document.querySelectorAll('.tower-tab');
+        towerTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tower = this.getAttribute('data-tower');
+                
+                // Remove active class from all tabs and content
+                towerTabs.forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tower-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(`${tower}-tower`).classList.add('active');
+            });
+        });
+
+        // Simulate file upload
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('click', function() {
+            // In a real app, this would trigger a file input dialog
+            alert('File upload dialog would appear here. In a real implementation, you would handle file selection and upload.');
+        });
+
+        // Date range validation
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+
+        startDate.addEventListener('change', function() {
+            if (new Date(this.value) > new Date(endDate.value)) {
+                alert('Start date cannot be after end date');
+                this.value = endDate.value;
+            }
+        });
+
+        endDate.addEventListener('change', function() {
+            if (new Date(this.value) < new Date(startDate.value)) {
+                alert('End date cannot be before start date');
+                this.value = startDate.value;
+            }
+        });
+    </script>
+</body>
+</html>

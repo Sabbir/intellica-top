@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intellica - L1 Support Dashboard</title>
+    <style>
+        :root {
+            --primary: #3a4f7a;
+            --secondary: #4fc3f7;
+            --accent: #ff7e5f;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-bar input {
+            border: none;
+            padding: 0.5rem;
+            width: 250px;
+            outline: none;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--dark);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Metrics Cards */
+        .metrics-container {
+            grid-column: span 3;
+        }
+
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            margin-top: auto;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Tickets Overview */
+        .tickets-overview {
+            grid-column: span 6;
+        }
+
+        .ticket-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .assigned {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .in-progress {
+            background-color: rgba(0, 123, 255, 0.1);
+            border-left: 4px solid var(--info);
+        }
+
+        .closed {
+            background-color: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid var(--success);
+        }
+
+        /* Tickets List */
+        .tickets-list {
+            grid-column: span 12;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .sla-timer {
+            font-weight: 600;
+        }
+
+        .sla-critical {
+            color: var(--danger);
+        }
+
+        .sla-warning {
+            color: var(--warning);
+        }
+
+        .sla-normal {
+            color: var(--success);
+        }
+
+        /* Ticket Details Page */
+        .ticket-details {
+            display: none;
+            grid-column: span 12;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 1rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .ticket-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .ticket-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .related-tickets {
+            list-style: none;
+        }
+
+        .related-ticket {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .related-ticket:hover {
+            background-color: #f8f9fa;
+        }
+
+        .sop-steps {
+            list-style: none;
+        }
+
+        .sop-step {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sop-step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .sop-step.completed .sop-step-number {
+            background-color: var(--success);
+        }
+
+        .sop-step.active .sop-step-number {
+            background-color: var(--secondary);
+        }
+
+        .resolution-card {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .resolution-card:hover {
+            background-color: #e9ecef;
+            transform: translateX(4px);
+        }
+
+        .resolution-card.selected {
+            border-left: 4px solid var(--accent);
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .resolution-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .resolution-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .resolution-success-rate {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .service-map {
+            width: 100%;
+            height: 200px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        /* Smart Assistant */
+        .smart-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+        }
+
+        .assistant-header {
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assistant-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assistant-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .assistant-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .assistant-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .assistant-bot {
+            background-color: white;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+        }
+
+        .assistant-user {
+            background-color: var(--secondary);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .assistant-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .assistant-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .assistant-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 1rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .assistant-launcher {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        /* AI Solution Flow */
+        .ai-solution-flow {
+            display: none;
+            grid-column: span 12;
+            margin-top: 1.5rem;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step-card {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: var(--gray);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-auto {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .status-manual {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+
+        .step-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .progress-container {
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .metrics-container {
+                grid-column: span 4;
+            }
+            
+            .tickets-overview {
+                grid-column: span 8;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .ticket-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-container, .tickets-overview {
+                grid-column: span 1;
+            }
+            
+            .ticket-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .smart-assistant {
+                width: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span>Intellica</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Support Engineer Dashboard</h1>
+                <div class="user-info">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search tickets...">
+                    </div>
+                    <div class="user-avatar">JD</div>
+                    <span>John Doe (L1 Support)</span>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div class="dashboard-grid" id="dashboardView">
+                <!-- Metrics -->
+                <div class="card metrics-container">
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <div class="card-title">Performance Metrics</div>
+                        </div>
+                        <div class="metric-value">92%</div>
+                        <div class="metric-label">SLA Compliance</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 2% from last week
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card metrics-container">
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <div class="card-title">Customer Satisfaction</div>
+                        </div>
+                        <div class="metric-value">4.7</div>
+                        <div class="metric-label">Average Rating</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 0.2 from last week
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card metrics-container">
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <div class="card-title">Productivity</div>
+                        </div>
+                        <div class="metric-value">18</div>
+                        <div class="metric-label">Tickets Resolved</div>
+                        <div class="metric-change negative">
+                            <i class="fas fa-arrow-down"></i> 3 from last week
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card metrics-container">
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <div class="card-title">First Contact</div>
+                        </div>
+                        <div class="metric-value">78%</div>
+                        <div class="metric-label">Resolution Rate</div>
+                        <div class="metric-change positive">
+                            <i class="fas fa-arrow-up"></i> 5% from last week
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets Overview -->
+                <div class="card tickets-overview">
+                    <div class="card-header">
+                        <div class="card-title">Tickets Overview</div>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-outline">Today</button>
+                            <button class="btn btn-sm btn-primary">This Week</button>
+                            <button class="btn btn-sm btn-outline">This Month</button>
+                        </div>
+                    </div>
+                    <div class="ticket-stats">
+                        <div class="stat-card assigned">
+                            <div class="metric-value">12</div>
+                            <div class="metric-label">Assigned</div>
+                        </div>
+                        <div class="stat-card in-progress">
+                            <div class="metric-value">5</div>
+                            <div class="metric-label">In Progress</div>
+                        </div>
+                        <div class="stat-card closed">
+                            <div class="metric-value">23</div>
+                            <div class="metric-label">Closed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tickets List -->
+                <div class="card tickets-list">
+                    <div class="card-header">
+                        <div class="card-title">Your Assigned Tickets</div>
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-secondary">
+                                <i class="fas fa-plus"></i> New Ticket
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Subject</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>SLA Timer</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#INC-10245</td>
+                                <td>Unable to access customer database</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td class="sla-timer sla-warning">1h 23m</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline view-ticket-btn" data-ticket="10245">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10238</td>
+                                <td>Login page not loading</td>
+                                <td><span class="badge badge-danger">High</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td class="sla-timer sla-critical">45m</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline view-ticket-btn" data-ticket="10238">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10212</td>
+                                <td>Report generation failing</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">Assigned</span></td>
+                                <td class="sla-timer sla-normal">3h 12m</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline view-ticket-btn" data-ticket="10212">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#INC-10189</td>
+                                <td>Password reset not working</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-success">Closed</span></td>
+                                <td class="sla-timer sla-normal">Completed</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline view-ticket-btn" data-ticket="10189">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ticket Details View -->
+            <div class="card ticket-details" id="ticketDetails">
+                <div class="ticket-header">
+                    <div>
+                        <div class="ticket-title" id="ticketSubject">Unable to access customer database</div>
+                        <div class="ticket-meta">
+                            <span>Ticket #<span id="ticketId">INC-10245</span></span>
+                            <span>Created: <span id="ticketCreated">2023-05-15 09:23</span></span>
+                            <span>Priority: <span id="ticketPriority" class="badge badge-warning">Medium</span></span>
+                            <span>Status: <span id="ticketStatus" class="badge badge-primary">Assigned</span></span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" id="backToDashboard">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="btn btn-secondary" id="openAssistant">
+                            <i class="fas fa-robot"></i> Smart Assistant
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ticket-grid">
+                    <div>
+                        <!-- Ticket Information -->
+                        <div class="ticket-section">
+                            <div class="section-title">Ticket Details</div>
+                            <div class="ticket-info">
+                                <div class="info-item">
+                                    <div class="info-label">Reporter</div>
+                                    <div class="info-value">Sarah Johnson (Customer Support)</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Department</div>
+                                    <div class="info-value">Customer Service</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Category</div>
+                                    <div class="info-value">Database Access</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Assigned To</div>
+                                    <div class="info-value">John Doe (You)</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">SLA</div>
+                                    <div class="info-value">4 Hours Response Time</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">SLA Status</div>
+                                    <div class="info-value"><span class="sla-timer sla-warning">1h 23m remaining</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="ticket-section">
+                            <div class="section-title">Description</div>
+                            <p id="ticketDescription">
+                                When trying to access the customer database through the admin portal, I receive an error message saying 
+                                "Access Denied: Insufficient permissions". This started happening after the system update last night. 
+                                I have the correct permissions assigned to my role (Customer Support Manager) and was able to access 
+                                it yesterday without issues. This is preventing our team from processing customer requests.
+                            </p>
+                        </div>
+
+                        <!-- Similar Tickets -->
+                        <div class="ticket-section">
+                            <div class="section-title">Similar Tickets (based on AI analysis)</div>
+                            <ul class="related-tickets">
+                                <li class="related-ticket">
+                                    <span>#INC-10123 - Database access denied after update</span>
+                                    <span class="badge badge-success">Resolved</span>
+                                </li>
+                                <li class="related-ticket">
+                                    <span>#INC-10089 - Permission issues with customer database</span>
+                                    <span class="badge badge-success">Resolved</span>
+                                </li>
+                                <li class="related-ticket">
+                                    <span>#INC-9987 - Role permissions not applying correctly</span>
+                                    <span class="badge badge-success">Resolved</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Service Map -->
+                        <div class="ticket-section">
+                            <div class="section-title">Service Impact</div>
+                            <div class="service-map">
+                                [Service Map Visualization: Customer Portal → Database Service → IAM Service]
+                            </div>
+                            <p>
+                                <strong>Impact Radius:</strong> 45 users affected across Customer Support and Sales departments.
+                                <br>
+                                <strong>Integrations:</strong> CRM System, Billing Platform, Reporting Dashboard
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- SOP Steps -->
+                        <div class="ticket-section">
+                            <div class="section-title">SOP Steps</div>
+                            <ul class="sop-steps">
+                                <li class="sop-step completed">
+                                    <div class="sop-step-number">1</div>
+                                    <div class="sop-step-content">
+                                        <div>Verify user permissions in IAM</div>
+                                        <small class="text-muted">Check user role assignments</small>
+                                    </div>
+                                </li>
+                                <li class="sop-step completed">
+                                    <div class="sop-step-number">2</div>
+                                    <div class="sop-step-content">
+                                        <div>Check database connection logs</div>
+                                        <small class="text-muted">Look for authentication errors</small>
+                                    </div>
+                                </li>
+                                <li class="sop-step active">
+                                    <div class="sop-step-number">3</div>
+                                    <div class="sop-step-content">
+                                        <div>Verify database access policies</div>
+                                        <small class="text-muted">Check recent policy changes</small>
+                                    </div>
+                                </li>
+                                <li class="sop-step">
+                                    <div class="sop-step-number">4</div>
+                                    <div class="sop-step-content">
+                                        <div>Test with different user roles</div>
+                                        <small class="text-muted">Isolate permission issue</small>
+                                    </div>
+                                </li>
+                                <li class="sop-step">
+                                    <div class="sop-step-number">5</div>
+                                    <div class="sop-step-content">
+                                        <div>Apply fix or escalate</div>
+                                        <small class="text-muted">Based on findings</small>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Top Resolutions -->
+                        <div class="ticket-section">
+                            <div class="section-title">TOP 5 Resolutions</div>
+                            <div class="resolution-card selected" id="resolution1">
+                                <div class="resolution-title">
+                                    <span>Permission cache refresh</span>
+                                    <span class="resolution-success-rate">92% success</span>
+                                </div>
+                                <div class="resolution-meta">
+                                    <span>Applied 127 times</span>
+                                    <span>Last used: 2 days ago</span>
+                                </div>
+                                <p class="resolution-desc">
+                                    Clear and refresh the permission cache in the IAM service. This often resolves 
+                                    permission propagation delays after updates.
+                                </p>
+                            </div>
+                            <div class="resolution-card" id="resolution2">
+                                <div class="resolution-title">
+                                    <span>Role reassignment</span>
+                                    <span class="resolution-success-rate">85% success</span>
+                                </div>
+                                <div class="resolution-meta">
+                                    <span>Applied 89 times</span>
+                                    <span>Last used: 1 week ago</span>
+                                </div>
+                                <p class="resolution-desc">
+                                    Remove and reassign the affected role to the user to force permission reevaluation.
+                                </p>
+                            </div>
+                            <div class="resolution-card" id="resolution3">
+                                <div class="resolution-title">
+                                    <span>Database policy update</span>
+                                    <span class="resolution-success-rate">78% success</span>
+                                </div>
+                                <div class="resolution-meta">
+                                    <span>Applied 64 times</span>
+                                    <span>Last used: 3 days ago</span>
+                                </div>
+                                <p class="resolution-desc">
+                                    Update the database access policy to explicitly include the required permissions.
+                                </p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="width: 100%; margin-top: 0.5rem;">
+                                <i class="fas fa-chevron-down"></i> Show 2 more solutions
+                            </button>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="ticket-section">
+                            <button class="btn btn-primary" id="initiateAIResolution" style="width: 100%; margin-bottom: 0.5rem;">
+                                <i class="fas fa-robot"></i> Initiate AI Resolution
+                            </button>
+                            <button class="btn btn-outline" id="escalateTicket" style="width: 100%;">
+                                <i class="fas fa-level-up-alt"></i> Escalate to L2
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Solution Flow -->
+            <div class="ai-solution-flow" id="aiSolutionFlow">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">AI Agentic Resolution Process</div>
+                        <div class="card-actions">
+                            <span class="badge badge-primary">In Progress</span>
+                        </div>
+                    </div>
+                    <div class="steps-container">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <div class="step-title">Verify Permission Cache State</div>
+                                <div class="step-description">
+                                    AI agent will check the IAM service for cached permission states and compare with database.
+                                </div>
+                                <span class="step-status status-auto">Automated</span>
+                                <div class="step-actions" id="step1Actions">
+                                    <button class="btn btn-sm btn-primary" disabled>
+                                        <i class="fas fa-spinner fa-spin"></i> Running...
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <div class="step-title">Clear Permission Cache</div>
+                                <div class="step-description">
+                                    AI agent will clear the permission cache and trigger a refresh from source policies.
+                                </div>
+                                <span class="step-status status-auto">Automated</span>
+                                <div class="step-actions" id="step2Actions">
+                                    <button class="btn btn-sm btn-outline" disabled>
+                                        Pending step 1 completion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <div class="step-title">Verify User Access</div>
+                                <div class="step-description">
+                                    Support engineer needs to verify if the user can now access the database.
+                                </div>
+                                <span class="step-status status-manual">Manual</span>
+                                <div class="step-actions" id="step3Actions">
+                                    <button class="btn btn-sm btn-outline" disabled>
+                                        Pending step 2 completion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <div class="step-title">Update Documentation</div>
+                                <div class="step-description">
+                                    Support engineer should update the knowledge base with this solution if successful.
+                                </div>
+                                <span class="step-status status-manual">Manual</span>
+                                <div class="step-actions" id="step4Actions">
+                                    <button class="btn btn-sm btn-outline" disabled>
+                                        Pending step 3 completion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <div class="step-title">Close Ticket</div>
+                                <div class="step-description">
+                                    AI agent will automatically close the ticket and notify all stakeholders.
+                                </div>
+                                <span class="step-status status-auto">Automated</span>
+                                <div class="step-actions" id="step5Actions">
+                                    <button class="btn btn-sm btn-outline" disabled>
+                                        Pending step 4 completion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="solutionProgress" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Assistant Launcher -->
+    <div class="assistant-launcher" id="assistantLauncher">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Smart Assistant -->
+    <div class="smart-assistant" id="smartAssistant">
+        <div class="assistant-header">
+            <div class="assistant-title">
+                <i class="fas fa-robot"></i> GenAI Smart Assistant
+            </div>
+            <button class="assistant-close" id="closeAssistant">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="assistant-messages" id="assistantMessages">
+            <div class="assistant-message assitant-bot">
+                Hello! I'm your GenAI Smart Assistant. How can I help you with ticket #INC-10245?
+            </div>
+        </div>
+        <div class="assistant-input">
+            <input type="text" id="assistantInput" placeholder="Ask about logs, MELT data, or solutions...">
+            <button class="assistant-btn" id="sendAssistantMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const dashboardView = document.getElementById('dashboardView');
+        const ticketDetails = document.getElementById('ticketDetails');
+        const aiSolutionFlow = document.getElementById('aiSolutionFlow');
+        const viewTicketBtns = document.querySelectorAll('.view-ticket-btn');
+        const backToDashboard = document.getElementById('backToDashboard');
+        const openAssistant = document.getElementById('openAssistant');
+        const initiateAIResolution = document.getElementById('initiateAIResolution');
+        const escalateTicket = document.getElementById('escalateTicket');
+        const assistantLauncher = document.getElementById('assistantLauncher');
+        const smartAssistant = document.getElementById('smartAssistant');
+        const closeAssistant = document.getElementById('closeAssistant');
+        const assistantMessages = document.getElementById('assistantMessages');
+        const assistantInput = document.getElementById('assistantInput');
+        const sendAssistantMessage = document.getElementById('sendAssistantMessage');
+        const resolutionCards = document.querySelectorAll('.resolution-card');
+
+        // Ticket View Navigation
+        viewTicketBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const ticketId = this.getAttribute('data-ticket');
+                // In a real app, we'd fetch ticket data based on ID
+                dashboardView.style.display = 'none';
+                ticketDetails.style.display = 'block';
+            });
+        });
+
+        backToDashboard.addEventListener('click', function() {
+            ticketDetails.style.display = 'none';
+            aiSolutionFlow.style.display = 'none';
+            dashboardView.style.display = 'grid';
+        });
+
+        // Smart Assistant
+        assistantLauncher.addEventListener('click', function() {
+            smartAssistant.style.display = 'flex';
+        });
+
+        openAssistant.addEventListener('click', function() {
+            smartAssistant.style.display = 'flex';
+        });
+
+        closeAssistant.addEventListener('click', function() {
+            smartAssistant.style.display = 'none';
+        });
+
+        function addAssistantMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('assistant-message', sender === 'bot' ? 'assitant-bot' : 'assistant-user');
+            messageDiv.textContent = message;
+            assistantMessages.appendChild(messageDiv);
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }
+
+        sendAssistantMessage.addEventListener('click', function() {
+            const message = assistantInput.value.trim();
+            if (message) {
+                addAssistantMessage('user', message);
+                assistantInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const responses = [
+                        "I've checked the logs and found that the permission cache wasn't updated after the system update. This is likely the cause.",
+                        "The MELT data shows multiple authentication failures for the customer database around the time of the system update.",
+                        "Based on similar tickets, clearing the permission cache resolves this issue 92% of the time.",
+                        "I can see in the service map that the IAM service is properly connected to the database service."
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addAssistantMessage('bot', randomResponse);
+                }, 1000);
+            }
+        });
+
+        assistantInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendAssistantMessage.click();
+            }
+        });
+
+        // Resolution Selection
+        resolutionCards.forEach(card => {
+            card.addEventListener('click', function() {
+                resolutionCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Initiate AI Resolution
+        initiateAIResolution.addEventListener('click', function() {
+            ticketDetails.style.display = 'none';
+            aiSolutionFlow.style.display = 'block';
+            
+            // Simulate AI resolution process
+            simulateAIResolution();
+        });
+
+        function simulateAIResolution() {
+            // Step 1
+            setTimeout(() => {
+                document.getElementById('step1Actions').innerHTML = `
+                    <button class="btn btn-sm btn-success">
+                        <i class="fas fa-check"></i> Completed
+                    </button>
+                `;
+                document.getElementById('solutionProgress').style.width = '20%';
+                
+                // Step 2
+                setTimeout(() => {
+                    document.getElementById('step2Actions').innerHTML = `
+                        <button class="btn btn-sm btn-primary">
+                            <i class="fas fa-spinner fa-spin"></i> Running...
+                        </button>
+                    `;
+                    
+                    setTimeout(() => {
+                        document.getElementById('step2Actions').innerHTML = `
+                            <button class="btn btn-sm btn-success">
+                                <i class="fas fa-check"></i> Completed
+                            </button>
+                        `;
+                        document.getElementById('solutionProgress').style.width = '40%';
+                        
+                        // Step 3
+                        document.getElementById('step3Actions').innerHTML = `
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-user-check"></i> Verify Access
+                            </button>
+                            <button class="btn btn-sm btn-outline">
+                                Skip
+                            </button>
+                        `;
+                        
+                        // Add click handler for step 3 button
+                        document.querySelector('#step3Actions .btn-primary').addEventListener('click', function() {
+                            this.innerHTML = '<i class="fas fa-check"></i> Verified';
+                            this.classList.remove('btn-primary');
+                            this.classList.add('btn-success');
+                            document.getElementById('solutionProgress').style.width = '60%';
+                            
+                            // Step 4
+                            document.getElementById('step4Actions').innerHTML = `
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Update Docs
+                                </button>
+                                <button class="btn btn-sm btn-outline">
+                                    Skip
+                                </button>
+                            `;
+                            
+                            // Add click handler for step 4 button
+                            document.querySelector('#step4Actions .btn-primary').addEventListener('click', function() {
+                                this.innerHTML = '<i class="fas fa-check"></i> Updated';
+                                this.classList.remove('btn-primary');
+                                this.classList.add('btn-success');
+                                document.getElementById('solutionProgress').style.width = '80%';
+                                
+                                // Step 5
+                                setTimeout(() => {
+                                    document.getElementById('step5Actions').innerHTML = `
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fas fa-spinner fa-spin"></i> Running...
+                                        </button>
+                                    `;
+                                    
+                                    setTimeout(() => {
+                                        document.getElementById('step5Actions').innerHTML = `
+                                            <button class="btn btn-sm btn-success">
+                                                <i class="fas fa-check"></i> Completed
+                                            </button>
+                                        `;
+                                        document.getElementById('solutionProgress').style.width = '100%';
+                                        
+                                        // Show success message
+                                        setTimeout(() => {
+                                            alert('Ticket #INC-10245 has been successfully resolved and closed!');
+                                        }, 500);
+                                    }, 1500);
+                                }, 500);
+                            });
+                        });
+                    }, 2000);
+                }, 500);
+            }, 1000);
+        }
+
+        // Escalate Ticket
+        escalateTicket.addEventListener('click', function() {
+            if (confirm('Are you sure you want to escalate this ticket to L2 support? Make sure you have enriched the ticket with all relevant information.')) {
+                alert('Ticket has been escalated to L2 support with all collected data and logs.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support Assistant</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3f7;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-box h1 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Chat Interface */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 90vh;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            background: white;
+            border: 1px solid #ddd;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-message {
+            background: var(--accent-color);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            background: white;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .chat-input button {
+            margin-left: 0.5rem;
+        }
+        
+        /* Ticket Status */
+        .ticket-status {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .ticket-status h2 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+        
+        .ticket-details {
+            text-align: left;
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .status-open {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--success-color);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                height: 85vh;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div class="login-container" id="loginScreen">
+            <div class="login-box">
+                <h1>Support Portal</h1>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button class="btn" id="loginBtn">Login</button>
+            </div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <div class="chat-container" id="chatInterface">
+            <div class="chat-header">
+                <h2>AI Support Assistant</h2>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Type your message here...">
+                <button class="btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+        
+        <!-- Ticket Status -->
+        <div class="ticket-status" id="ticketStatus">
+            <div class="status-badge status-open">Ticket Created</div>
+            <h2>Your support ticket has been created!</h2>
+            <p>Thank you for contacting support. Here are the details of your ticket:</p>
+            
+            <div class="ticket-details">
+                <p><strong>Ticket ID:</strong> <span id="ticketId">SR-2023-05642</span></p>
+                <p><strong>Issue:</strong> <span id="ticketIssue">Unable to access dashboard</span></p>
+                <p><strong>Priority:</strong> <span id="ticketPriority">Medium</span></p>
+                <p><strong>Status:</strong> <span id="ticketStatusText">Open</span></p>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <p>We'll notify you when there are updates on your ticket.</p>
+            <button class="btn" id="newTicketBtn">Start New Ticket</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const chatInterface = document.getElementById('chatInterface');
+        const ticketStatus = document.getElementById('ticketStatus');
+        const loginBtn = document.getElementById('loginBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const userInput = document.getElementById('userInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const newTicketBtn = document.getElementById('newTicketBtn');
+        
+        // Conversation flow
+        const conversationFlow = [
+            {
+                question: "Hello! I'm your AI support assistant. Could you please describe the problem you're experiencing?",
+                answerType: "freeText",
+                storeAs: "problemDescription"
+            },
+            {
+                question: "When did you first notice this issue?",
+                answerType: "date",
+                storeAs: "issueDate"
+            },
+            {
+                question: "How would you rate the severity of this issue? (Low, Medium, High, Critical)",
+                answerType: "options",
+                options: ["Low", "Medium", "High", "Critical"],
+                storeAs: "priority"
+            },
+            {
+                question: "Is this issue preventing you from completing your work? (Yes/No)",
+                answerType: "boolean",
+                storeAs: "workBlocked"
+            },
+            {
+                question: "Can you share any error messages you're seeing? If none, just say 'none'.",
+                answerType: "freeText",
+                storeAs: "errorMessages"
+            }
+        ];
+        
+        let currentStep = 0;
+        let ticketData = {};
+        
+        // Login functionality
+        loginBtn.addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                loginScreen.style.display = 'none';
+                chatInterface.style.display = 'flex';
+                
+                // Start conversation
+                setTimeout(() => {
+                    addBotMessage(conversationFlow[currentStep].question);
+                }, 500);
+            } else {
+                alert('Please enter both username and password');
+            }
+        });
+        
+        // Send message functionality
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addUserMessage(message);
+                userInput.value = '';
+                
+                // Store response
+                const currentQuestion = conversationFlow[currentStep];
+                ticketData[currentQuestion.storeAs] = message;
+                
+                // Move to next question or end conversation
+                currentStep++;
+                if (currentStep < conversationFlow.length) {
+                    setTimeout(() => {
+                        addBotMessage(conversationFlow[currentStep].question);
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        completeTicket();
+                    }, 1500);
+                }
+            }
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // New ticket functionality
+        newTicketBtn.addEventListener('click', function() {
+            ticketStatus.style.display = 'none';
+            chatInterface.style.display = 'flex';
+            chatMessages.innerHTML = '';
+            currentStep = 0;
+            ticketData = {};
+            
+            setTimeout(() => {
+                addBotMessage(conversationFlow[currentStep].question);
+            }, 500);
+        });
+        
+        // Helper functions
+        function addBotMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'bot-message');
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'user-message');
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function completeTicket() {
+            // Generate random ticket ID
+            const ticketId = 'SR-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
+            
+            // Update ticket details
+            document.getElementById('ticketId').textContent = ticketId;
+            document.getElementById('ticketIssue').textContent = ticketData.problemDescription;
+            document.getElementById('ticketPriority').textContent = ticketData.priority || 'Medium';
+            
+            // Show ticket status
+            chatInterface.style.display = 'none';
+            ticketStatus.style.display = 'block';
+            
+            // Animate progress bar
+            setTimeout(() => {
+                document.getElementById('progressBar').style.width = '100%';
+            }, 100);
+            
+            // In a real app, you would send the ticketData to your backend here
+            console.log('Ticket created:', ticketData);
+        }
+    </script>
+</body>
+</html>
