@@ -912,8 +912,8 @@
                         <tbody>
                             <tr>
                                 <td>#INC-10245</td>
-                                <td>Unable to access customer database</td>
-                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td>Invoice Matching Issue in SAP</td>
+                                <td><span class="badge badge-danger">High</span></td>
                                 <td><span class="badge badge-primary">Assigned</span></td>
                                 <td class="sla-timer sla-warning">1h 23m</td>
                                 <td>
@@ -1310,9 +1310,7 @@
         viewTicketBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 const ticketId = this.getAttribute('data-ticket');
-                // In a real app, we'd fetch ticket data based on ID
-                dashboardView.style.display = 'none';
-                ticketDetails.style.display = 'block';
+                window.location.href = `ticket-detail.html?ticketId=${ticketId}`;
             });
         });
 

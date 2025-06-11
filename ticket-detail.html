@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intellica - Ticket Details</title>
+    <style>
+        :root {
+            --primary: #3a4f7a;
+            --secondary: #4fc3f7;
+            --accent: #ff7e5f;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link i {
+            font-size: 1.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Ticket Details Styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .ticket-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--dark);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .ticket-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            color: var(--primary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+        }
+
+        .variance-alert {
+            background-color: rgba(220, 53, 69, 0.1);
+            padding: 0.75rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--danger);
+            margin: 1rem 0;
+        }
+
+        .variance-value {
+            font-weight: bold;
+            color: var(--danger);
+        }
+
+        .steps-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .step-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .impact-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .impact-item {
+            padding: 0.75rem;
+            border-left: 3px solid var(--accent);
+            background-color: rgba(255, 126, 95, 0.1);
+            margin-bottom: 0.5rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .actions-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .action-item {
+            padding: 0.75rem;
+            border-left: 3px solid var(--success);
+            background-color: rgba(40, 167, 69, 0.1);
+            margin-bottom: 0.5rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .attachments-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .attachment-item {
+            padding: 0.5rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Smart Assistant */
+        .smart-assistant {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+        }
+
+        .assistant-header {
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .assistant-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assistant-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .assistant-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .assistant-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .assistant-bot {
+            background-color: white;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+        }
+
+        .assistant-user {
+            background-color: var(--secondary);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .assistant-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .assistant-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .assistant-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0 1rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        .assistant-launcher {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .ticket-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .smart-assistant {
+                width: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span>Intellica</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="l1-support.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Ticket Details</h1>
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <span>John Doe (L1 Support)</span>
+                </div>
+            </div>
+
+            <!-- Ticket Details Card -->
+            <div class="card">
+                <div class="ticket-header">
+                    <div>
+                        <div class="ticket-title">Invoice Matching Issue in SAP</div>
+                        <div class="ticket-meta">
+                            <span>Ticket #INC-20250604-00123</span>
+                            <span class="badge badge-danger">High Priority</span>
+                            <span class="badge badge-warning">Open</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-primary" id="openAssistant">
+                            <i class="fas fa-robot"></i> Smart Assistant
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ticket-grid">
+                    <div>
+                        <!-- Ticket Information -->
+                        <div class="section-title">Ticket Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Reported By</div>
+                                <div class="info-value">Priya Sharma</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Department</div>
+                                <div class="info-value">Finance – Accounts Payable</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Date Reported</div>
+                                <div class="info-value">01-Jun-2025, 10:45 AM IST</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Assigned To</div>
+                                <div class="info-value">EBP Support Team</div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor Information -->
+                        <div class="section-title">Vendor & Document Details</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Vendor Name</div>
+                                <div class="info-value">ABC Supplies Pvt. Ltd.</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Invoice Number</div>
+                                <div class="info-value">INV-456789</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">PO Number</div>
+                                <div class="info-value">PO-123456</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">GRN Number</div>
+                                <div class="info-value">GRN-789123</div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Details -->
+                        <div class="section-title">Financial Details</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Invoice Amount</div>
+                                <div class="info-value">¥1,25,000</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">PO Amount</div>
+                                <div class="info-value">¥1,20,000</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Tolerance Limit</div>
+                                <div class="info-value">±2%</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Variance Observed</div>
+                                <div class="info-value variance-value">+4.17%</div>
+                            </div>
+                        </div>
+                        <div class="variance-alert">
+                            <i class="fas fa-exclamation-triangle"></i> Variance exceeds tolerance limit by 2.17%
+                        </div>
+
+                        <!-- Issue Description -->
+                        <div class="section-title">Issue Description</div>
+                        <p>
+                            Invoice #INV-456789 from Vendor <strong>ABC Supplies Pvt. Ltd.</strong> is not matching with Purchase Order #PO-123456 in the ERP system (SAP 5/4HANA). The system is throwing a "Price Variance Exceeds Tolerance" error during the 3-way match process.
+                        </p>
+
+                        <!-- Steps to Reproduce -->
+                        <div class="section-title">Steps to Reproduce</div>
+                        <ol class="steps-list">
+                            <li class="step-item">
+                                <div class="step-number">1</div>
+                                <div>Log in to SAP 5/4HANA</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-number">2</div>
+                                <div>Navigate to Invoice Verification (MIRO)</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-number">3</div>
+                                <div>Enter Invoice #INV-456789</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-number">4</div>
+                                <div>System throws error: "Price variance exceeds tolerance limit."</div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div>
+                        <!-- Impact -->
+                        <div class="section-title">Impact</div>
+                        <ul class="impact-list">
+                            <li class="impact-item">
+                                <i class="fas fa-times-circle"></i> Invoice cannot be posted
+                            </li>
+                            <li class="impact-item">
+                                <i class="fas fa-clock"></i> Payment to vendor is delayed
+                            </li>
+                            <li class="impact-item">
+                                <i class="fas fa-handshake"></i> May affect vendor relationship and delivery timelines
+                            </li>
+                        </ul>
+
+                        <!-- Requested Actions -->
+                        <div class="section-title">Requested Actions</div>
+                        <ul class="actions-list">
+                            <li class="action-item">
+                                <i class="fas fa-check-circle"></i> Review and adjust tolerance settings if appropriate
+                            </li>
+                            <li class="action-item">
+                                <i class="fas fa-check-circle"></i> Confirm if PO needs to be amended or if invoice is incorrect
+                            </li>
+                            <li class="action-item">
+                                <i class="fas fa-check-circle"></i> Provide resolution or workaround to allow invoice posting
+                            </li>
+                        </ul>
+
+                        <!-- Attachments -->
+                        <div class="section-title">Attachments</div>
+                        <div class="attachments-list">
+                            <div class="attachment-item">
+                                <i class="fas fa-image"></i> Error Screenshot
+                            </div>
+                            <div class="attachment-item">
+                                <i class="fas fa-file-invoice"></i> PO Document
+                            </div>
+                            <div class="attachment-item">
+                                <i class="fas fa-file-alt"></i> Invoice Copy
+                            </div>
+                            <div class="attachment-item">
+                                <i class="fas fa-receipt"></i> GRN Document
+                            </div>
+                        </div>
+
+                        <!-- Resolution Actions -->
+                        <div class="section-title">Resolution Actions</div>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-check"></i> Mark as Resolved
+                        </button>
+                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-level-up-alt"></i> Escalate to L2
+                        </button>
+                        <button class="btn btn-accent" style="width: 100%;">
+                            <i class="fas fa-robot"></i> AI Resolution
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Assistant Launcher -->
+    <div class="assistant-launcher" id="assistantLauncher">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Smart Assistant -->
+    <div class="smart-assistant" id="smartAssistant">
+        <div class="assistant-header">
+            <div class="assistant-title">
+                <i class="fas fa-robot"></i> GenAI Smart Assistant
+            </div>
+            <button class="assistant-close" id="closeAssistant">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="assistant-messages" id="assistantMessages">
+            <div class="assistant-message assistant-bot">
+                Hello! I'm your GenAI Smart Assistant. How can I help you with ticket #INC-20250604-00123?
+            </div>
+            <div class="assistant-message assistant-bot">
+                I can see this is an SAP invoice matching issue with a 4.17% variance. Would you like me to:
+                <ul style="margin-top: 0.5rem; padding-left: 1rem;">
+                    <li>Check historical tolerance exceptions for this vendor</li>
+                    <li>Review the PO amendment process</li>
+                    <li>Suggest temporary workarounds</li>
+                </ul>
+            </div>
+        </div>
+        <div class="assistant-input">
+            <input type="text" id="assistantInput" placeholder="Ask about SAP settings, vendor contracts...">
+            <button class="assistant-btn" id="sendAssistantMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const openAssistant = document.getElementById('openAssistant');
+        const assistantLauncher = document.getElementById('assistantLauncher');
+        const smartAssistant = document.getElementById('smartAssistant');
+        const closeAssistant = document.getElementById('closeAssistant');
+        const assistantMessages = document.getElementById('assistantMessages');
+        const assistantInput = document.getElementById('assistantInput');
+        const sendAssistantMessage = document.getElementById('sendAssistantMessage');
+
+        // Get ticket ID from URL - NEW CODE ADDED
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('ticketId');
+        
+        // In a real app, you would fetch ticket details based on the ID
+        console.log("Viewing ticket:", ticketId);
+        
+        // Update ticket number display - NEW CODE ADDED
+        if (ticketId) {
+            const ticketNumberElement = document.querySelector('.ticket-meta span:first-child');
+            if (ticketNumberElement) {
+                ticketNumberElement.textContent = `Ticket #INC-${ticketId}`;
+            }
+        }
+
+        // Smart Assistant
+        assistantLauncher.addEventListener('click', function() {
+            smartAssistant.style.display = 'flex';
+        });
+
+        openAssistant.addEventListener('click', function() {
+            smartAssistant.style.display = 'flex';
+        });
+
+        closeAssistant.addEventListener('click', function() {
+            smartAssistant.style.display = 'none';
+        });
+
+        function addAssistantMessage(sender, message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('assistant-message', sender === 'bot' ? 'assistant-bot' : 'assistant-user');
+            messageDiv.innerHTML = message;
+            assistantMessages.appendChild(messageDiv);
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }
+
+        sendAssistantMessage.addEventListener('click', function() {
+            const message = assistantInput.value.trim();
+            if (message) {
+                addAssistantMessage('user', message);
+                assistantInput.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const responses = [
+                        "I've checked SAP configuration for this vendor. The tolerance is set to 2% but can be temporarily increased to 5% with manager approval.",
+                        "Historical data shows this vendor has had 3 similar exceptions in the past year, all approved after review.",
+                        "The PO amendment process would take 2-3 business days. Alternatively, you can create a credit memo for the variance amount.",
+                        "I found a KB article #SAP-4578 about overriding price variances during month-end close."
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addAssistantMessage('bot', randomResponse);
+                }, 1000);
+            }
+        });
+
+        assistantInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendAssistantMessage.click();
+            }
+        });
+    </script>
+</body>
+</html>
